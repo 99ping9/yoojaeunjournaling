@@ -24,10 +24,11 @@ import { HOLIDAYS_2026 } from '@/lib/constants'
 const PROGRAM_START_DATE = new Date(2026, 1, 22) // Feb 22, 2026
 
 
-const Calendar = ({ submissions, onDateClick, currentDate, isAdminMode = false }: {
+const Calendar = ({ submissions, onDateClick, currentDate, isColumnParticipant = false, isAdminMode = false }: {
     submissions: Record<string, SubmissionType[]>
     onDateClick?: (date: Date) => void
     currentDate: Date
+    isColumnParticipant?: boolean
     isAdminMode?: boolean
 }) => {
     const [viewDate, setViewDate] = useState(currentDate)
@@ -70,7 +71,7 @@ const Calendar = ({ submissions, onDateClick, currentDate, isAdminMode = false }
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
             <div className="flex items-center justify-between p-6 border-b border-slate-100">
                 <h2 className="text-xl font-bold text-slate-800">
-                    {format(viewDate, 'MMMM')}
+                    {format(viewDate, 'MMMM yyyy')}
                 </h2>
                 <div className="flex gap-2">
                     <button onClick={prevMonth} className="p-2 hover:bg-slate-50 rounded-full transition-colors">
@@ -98,7 +99,7 @@ const Calendar = ({ submissions, onDateClick, currentDate, isAdminMode = false }
                         const isCurrentMonth = isSameMonth(day, monthStart)
                         const holidayName = HOLIDAYS_2026[dateKey]
                         const isHoliday = !!holidayName
-                        const requiredCount = 3
+                        const requiredCount = isColumnParticipant ? 5 : 4
                         const isAllDone = subCount >= requiredCount
                         const isBeforeStart = isBefore(day, PROGRAM_START_DATE)
                         const today = new Date()

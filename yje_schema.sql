@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS yje_journals (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id uuid REFERENCES yje_users(id) ON DELETE CASCADE,
   date date NOT NULL,
-  type text NOT NULL CHECK (type IN ('journal', 'account', 'content', 'thread', 'mate', 'column')),
+  type text NOT NULL CHECK (type IN ('journal', 'account', 'content')),
   link text,
   amount numeric,
   created_at timestamptz DEFAULT now(),

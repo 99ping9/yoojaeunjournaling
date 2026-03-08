@@ -93,7 +93,7 @@ const Home = () => {
         <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
             <div className="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden">
                 <div className="bg-gradient-to-r from-sky-500 to-blue-600 p-8 text-center">
-                    <h1 className="text-3xl font-bold text-white">유재은</h1>
+                    <h1 className="text-3xl font-bold text-white">연애는 유재은</h1>
                 </div>
 
                 <div className="p-8">

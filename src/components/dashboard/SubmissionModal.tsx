@@ -8,39 +8,32 @@ interface SubmissionModalProps {
     onClose: () => void
     date: Date
     onSubmit: (data: { link: string, type: SubmissionType, amount?: number }) => Promise<void>
-    onDelete?: () => Promise<void>
     submittedTypes: SubmissionType[]
-    existingData: Record<string, { link: string, amount: number | null }> // type -> {link, amount}
-    isColumnParticipant: boolean
+    existingData: Record<string, { link: string, amount: number | null }>
     defaultType?: SubmissionType
     isAdminViewing?: boolean
 }
 
-const SubmissionModal = ({ isOpen, onClose, date, onSubmit, submittedTypes, existingData, isColumnParticipant, defaultType, isAdminViewing = false }: SubmissionModalProps) => {
+const SubmissionModal = ({ isOpen, onClose, date, onSubmit, submittedTypes, existingData, defaultType, isAdminViewing = false }: SubmissionModalProps) => {
     const [selectedType, setSelectedType] = useState<SubmissionType>(defaultType || 'journal')
     const [link, setLink] = useState('')
     const [amount, setAmount] = useState('')
     const [isSubmitting, setIsSubmitting] = useState(false)
-    const [mateConfirmed, setMateConfirmed] = useState(false)
 
-    // Pre-fill helper: populate link/amount from existingData for a given type
     const prefillForType = (type: SubmissionType) => {
         const existing = existingData[type]
         if (existing) {
             if (type === 'account') {
                 setAmount(existing.amount != null ? String(existing.amount) : '')
-            } else if (type !== 'mate') {
+            } else {
                 setLink(existing.link || '')
             }
-            if (type === 'mate') setMateConfirmed(true)
         } else {
             setLink('')
             setAmount('')
-            if (type === 'mate') setMateConfirmed(submittedTypes.includes('mate'))
         }
     }
 
-    // Reset state when opening — pre-fill defaultType or journal
     useEffect(() => {
         if (isOpen) {
             const startType = defaultType || 'journal'
@@ -54,23 +47,17 @@ const SubmissionModal = ({ isOpen, onClose, date, onSubmit, submittedTypes, exis
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        const isCurrentlySubmitted = submittedTypes.includes(selectedType)
 
-        const isCurrentlySubmitted = submittedTypes.includes(selectedType);
-
-        // Validation - allow bypassing if they are deleting an existing submission
         if (!isCurrentlySubmitted) {
             if (selectedType === 'account' && !amount) return
-            if (['journal', 'thread', 'column'].includes(selectedType) && !link.trim()) return
+            if ((selectedType === 'journal' || selectedType === 'content') && !link.trim()) return
         }
 
         setIsSubmitting(true)
-
         let contentToSubmit = link.trim()
 
-        // If they empty out a previously completed submission, mark it as 'unchecked' to delete it
-        if (selectedType === 'mate') {
-            contentToSubmit = mateConfirmed ? 'completed' : 'unchecked'
-        } else if (['journal', 'thread', 'column'].includes(selectedType) && !contentToSubmit) {
+        if ((selectedType === 'journal' || selectedType === 'content') && !contentToSubmit) {
             contentToSubmit = 'unchecked'
         }
 
@@ -85,7 +72,6 @@ const SubmissionModal = ({ isOpen, onClose, date, onSubmit, submittedTypes, exis
     }
 
     const isSubmitted = submittedTypes.includes(selectedType)
-    const isDisabled = selectedType === 'column' && !isColumnParticipant
 
     return (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
@@ -95,28 +81,22 @@ const SubmissionModal = ({ isOpen, onClose, date, onSubmit, submittedTypes, exis
                         <CalendarIcon className="w-5 h-5 text-blue-500" />
                         {isAdminViewing ? '기록 보기' : '기록하기'} <span className="text-slate-400 text-sm font-normal">| {format(date, 'MM.dd')}</span>
                     </h3>
-                    <button
-                        onClick={onClose}
-                        className="p-1 rounded-full hover:bg-slate-200 transition-colors text-slate-500"
-                    >
+                    <button onClick={onClose} className="p-1 rounded-full hover:bg-slate-200 transition-colors text-slate-500">
                         <X className="w-5 h-5" />
                     </button>
                 </div>
 
-                <div className="p-4 bg-white border-b border-slate-100 overflow-x-auto shrink-0">
-                    <div className="flex gap-2 min-w-max">
+                {/* 타입 선택 탭 */}
+                <div className="p-4 bg-white border-b border-slate-100 shrink-0">
+                    <div className="flex gap-2">
                         {SUBMISSION_TYPES.map(type => {
                             const isDone = submittedTypes.includes(type.id)
                             const isSelected = selectedType === type.id
-                            const isActive = isColumnParticipant || type.id !== 'column'
-
-                            if (!isActive) return null
-
                             return (
                                 <button
                                     key={type.id}
                                     onClick={() => { setSelectedType(type.id); prefillForType(type.id) }}
-                                    className={`px-3 py-2 rounded-xl text-sm font-bold transition-all border flex items-center gap-1.5 ${isSelected
+                                    className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border flex items-center gap-1.5 ${isSelected
                                         ? 'bg-blue-600 text-white border-blue-600 shadow-md ring-2 ring-blue-200'
                                         : isDone
                                             ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'
@@ -132,121 +112,61 @@ const SubmissionModal = ({ isOpen, onClose, date, onSubmit, submittedTypes, exis
                 </div>
 
                 <div className="p-6 overflow-y-auto">
-                    {isDisabled ? (
-                        <div className="text-center py-10 text-slate-400">
-                            칼럼 챌린지에 참여하고 있지 않습니다.
-                        </div>
-                    ) : (
-                        <form onSubmit={handleSubmit} className="space-y-6">
-                            {(selectedType === 'journal' || selectedType === 'thread' || selectedType === 'column') && (() => {
-                                const isPersonal = link === 'completed';
-
-                                return (
-                                    <div className="space-y-4">
-                                        <div className="flex items-center justify-between">
-                                            <label className="text-sm font-semibold text-slate-700">인증 링크 (Link URL)</label>
-
-                                            {selectedType === 'column' && (
-                                                <label className="flex items-center gap-2 cursor-pointer">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={isPersonal}
-                                                        onChange={(e) => {
-                                                            if (e.target.checked) setLink('completed')
-                                                            else setLink('')
-                                                        }}
-                                                        disabled={isAdminViewing}
-                                                        className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer disabled:opacity-50"
-                                                    />
-                                                    <span className="text-sm text-slate-600 font-medium">개인 공간 작성 (링크 생략)</span>
-                                                </label>
-                                            )}
-                                        </div>
-
-                                        {!isPersonal && (
-                                            <div className="relative">
-                                                <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                                                <input
-                                                    type="url"
-                                                    value={link}
-                                                    onChange={(e) => setLink(e.target.value)}
-                                                    placeholder={selectedType === 'column' ? "Notion or Blog URL" : "URL을 입력해주세요"}
-                                                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all"
-                                                    required={!isPersonal && !isSubmitted}
-                                                    autoFocus
-                                                    readOnly={isAdminViewing}
-                                                />
-                                            </div>
-                                        )}
-
-                                        {selectedType === 'column' && !isPersonal && (
-                                            <p className="text-xs text-slate-400">
-                                                * 사진 업로드는 준비중입니다. URL로 인증해주세요.
-                                            </p>
-                                        )}
-                                    </div>
-                                )
-                            })()}
-
-                            {selectedType === 'account' && (
-                                <div className="space-y-2">
-                                    <label className="text-sm font-semibold text-slate-700">오늘 사용한 금액</label>
-                                    <div className="relative">
-                                        <div className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-slate-400">₩</div>
-                                        <input
-                                            type="number"
-                                            value={amount}
-                                            onChange={(e) => setAmount(e.target.value)}
-                                            placeholder="금액 입력"
-                                            className="w-full pl-8 pr-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-bold text-lg"
-                                            required={!isSubmitted}
-                                            autoFocus
-                                            readOnly={isAdminViewing}
-                                        />
-                                    </div>
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* 저널링 / 컨텐츠: 링크 입력 */}
+                        {(selectedType === 'journal' || selectedType === 'content') && (
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-slate-700">
+                                    {selectedType === 'journal' ? '저널링 링크' : '컨텐츠 링크'} (URL)
+                                </label>
+                                <div className="relative">
+                                    <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                    <input
+                                        type="url"
+                                        value={link}
+                                        onChange={(e) => setLink(e.target.value)}
+                                        placeholder="https://..."
+                                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all"
+                                        required={!isSubmitted}
+                                        autoFocus
+                                        readOnly={isAdminViewing}
+                                    />
                                 </div>
-                            )}
+                            </div>
+                        )}
 
-                            {selectedType === 'mate' && (
-                                <div className="py-4">
-                                    <button
-                                        type="button"
-                                        onClick={() => !isAdminViewing && setMateConfirmed(prev => !prev)}
-                                        disabled={isAdminViewing}
-                                        className={`w-full flex items-start gap-3 p-4 rounded-xl border transition-all duration-200 ${mateConfirmed
-                                            ? 'bg-blue-50 border-blue-300 ring-2 ring-blue-200'
-                                            : 'bg-slate-50 border-slate-200 hover:border-blue-200'
-                                            } ${isAdminViewing ? 'cursor-default opacity-80' : ''}`}
-                                    >
-                                        <div className={`mt-0.5 w-5 h-5 rounded-full flex items-center justify-center transition-colors ${mateConfirmed ? 'bg-blue-600 text-white' : 'border-2 border-slate-300 bg-white'
-                                            }`}>
-                                            {mateConfirmed && <CheckCircle className="w-5 h-5" />}
-                                        </div>
-                                        <div className="text-left">
-                                            <h4 className={`font-bold text-sm ${mateConfirmed ? 'text-blue-900' : 'text-slate-600'}`}>
-                                                메이트 콜 인증
-                                            </h4>
-                                            <p className={`text-xs mt-1 ${mateConfirmed ? 'text-blue-700' : 'text-slate-400'}`}>
-                                                {mateConfirmed ? '✅ 통화 완료로 표시됩니다.' : '클릭하면 오늘 메이트와 통화 완료로 체크됩니다.'}
-                                            </p>
-                                        </div>
-                                    </button>
+                        {/* 가계부: 금액 입력 */}
+                        {selectedType === 'account' && (
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-slate-700">오늘 사용한 금액</label>
+                                <div className="relative">
+                                    <div className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-slate-400">₩</div>
+                                    <input
+                                        type="number"
+                                        value={amount}
+                                        onChange={(e) => setAmount(e.target.value)}
+                                        placeholder="금액 입력"
+                                        className="w-full pl-8 pr-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-bold text-lg"
+                                        required={!isSubmitted}
+                                        autoFocus
+                                        readOnly={isAdminViewing}
+                                    />
                                 </div>
-                            )}
+                            </div>
+                        )}
 
-                            {!isAdminViewing && (
-                                <div className="pt-2 flex justify-end">
-                                    <button
-                                        type="submit"
-                                        disabled={isSubmitting}
-                                        className="w-full py-3.5 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        {isSubmitting ? '저장 중... ✈' : isSubmitted ? '수정하기 ✏️' : '인증하기'} <Send className="w-4 h-4" />
-                                    </button>
-                                </div>
-                            )}
-                        </form>
-                    )}
+                        {!isAdminViewing && (
+                            <div className="pt-2">
+                                <button
+                                    type="submit"
+                                    disabled={isSubmitting}
+                                    className="w-full py-3.5 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {isSubmitting ? '저장 중...' : isSubmitted ? '수정하기 ✏️' : '기록하기'} <Send className="w-4 h-4" />
+                                </button>
+                            </div>
+                        )}
+                    </form>
                 </div>
             </div>
         </div>
