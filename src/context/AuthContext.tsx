@@ -15,7 +15,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-const ADMIN_PASSWORD = 'biabio1234' // Simple client-side check as requested
+const ADMIN_PASSWORD = 'yujaeun1212' // Simple client-side check as requested
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null)
@@ -24,8 +24,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Load user from localStorage on mount (persistence)
     useEffect(() => {
-        const storedUser = localStorage.getItem('morning_journal_user')
-        const adminStatus = localStorage.getItem('morning_journal_admin')
+        const storedUser = localStorage.getItem('yje_journal_user')
+        const adminStatus = localStorage.getItem('yje_journal_admin')
 
         if (storedUser) {
             setUser(JSON.parse(storedUser))
@@ -58,7 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             // 1. Check if user exists
             let { data: existingUser, error: fetchError } = await supabase
-                .from('users')
+                .from('yje_users')
                 .select('*')
                 .eq('username', cleanName)
                 .single()
@@ -73,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             // 2. If not exists, create new user
             if (!existingUser) {
                 const { data: newUser, error: createError } = await supabase
-                    .from('users')
+                    .from('yje_users')
                     .insert([{ username: cleanName, is_column_challenge: false }])
                     .select()
                     .single()
@@ -87,7 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             // 3. Set state and local storage
             setUser(targetUser)
-            localStorage.setItem('morning_journal_user', JSON.stringify(targetUser))
+            localStorage.setItem('yje_journal_user', JSON.stringify(targetUser))
             return { success: true }
 
         } catch (err) {
@@ -99,8 +99,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const logout = () => {
         setUser(null)
         setIsAdmin(false)
-        localStorage.removeItem('morning_journal_user')
-        localStorage.removeItem('morning_journal_admin')
+        localStorage.removeItem('yje_journal_user')
+        localStorage.removeItem('yje_journal_admin')
     }
 
     const updateProfile = async (newName: string, newAvatar?: string, newBgColor?: string) => {
@@ -122,7 +122,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
 
             const { error } = await supabase
-                .from('users')
+                .from('yje_users')
                 .update(updates)
                 .eq('id', user.id)
 
@@ -135,7 +135,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             const updatedUser: User = { ...user, ...updates }
             setUser(updatedUser)
-            localStorage.setItem('morning_journal_user', JSON.stringify(updatedUser))
+            localStorage.setItem('yje_journal_user', JSON.stringify(updatedUser))
             return { success: true }
 
         } catch (err: any) {
@@ -156,7 +156,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
 
             const { error } = await supabase
-                .from('users')
+                .from('yje_users')
                 .update({ is_column_challenge: isChallenge })
                 .eq('id', user.id)
 
@@ -164,7 +164,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             const updatedUser: User = { ...user, is_column_challenge: isChallenge }
             setUser(updatedUser)
-            localStorage.setItem('morning_journal_user', JSON.stringify(updatedUser))
+            localStorage.setItem('yje_journal_user', JSON.stringify(updatedUser))
             return { success: true }
 
         } catch (err: any) {
@@ -176,7 +176,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const checkAdmin = (password: string) => {
         if (password === ADMIN_PASSWORD) {
             setIsAdmin(true)
-            localStorage.setItem('morning_journal_admin', 'true')
+            localStorage.setItem('yje_journal_admin', 'true')
             return true
         }
         return false

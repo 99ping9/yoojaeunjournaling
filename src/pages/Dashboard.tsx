@@ -98,7 +98,7 @@ const Dashboard = () => {
         // REAL MODE
         setSubmissionsLoaded(false)
         const { data: journals, error } = await supabase
-            .from('journals')
+            .from('yje_journals')
             .select('date, type, link, amount')
             .eq('user_id', userId)
 
@@ -160,7 +160,7 @@ const Dashboard = () => {
 
             // Get all users
             const { data: allUsers, error: usersError } = await supabase
-                .from('users')
+                .from('yje_users')
                 .select('id, username, avatar, bg_color, is_column_challenge') // Fetch new fields
 
             if (usersError) throw usersError
@@ -173,7 +173,7 @@ const Dashboard = () => {
             const endStr = format(lastWeekEnd, 'yyyy-MM-dd')
 
             const { data: pastWeekJournals, error: pastWeekError } = await supabase
-                .from('journals')
+                .from('yje_journals')
                 .select('user_id, date, type')
                 .gte('date', startStr)
                 .lte('date', endStr)
@@ -237,7 +237,7 @@ const Dashboard = () => {
 
             // Get all submissions for today
             const { data: todayJournals, error: todayError } = await supabase
-                .from('journals')
+                .from('yje_journals')
                 .select('user_id')
                 .eq('date', todayStr)
 
@@ -308,7 +308,7 @@ const Dashboard = () => {
             // "unchecked" or empty amount means the user wants to UNDO/delete their submission
             if (data.link === 'unchecked' || (data.type === 'account' && !data.amount && data.amount !== 0)) {
                 const { error } = await supabase
-                    .from('journals')
+                    .from('yje_journals')
                     .delete()
                     .eq('user_id', targetUserId)
                     .eq('date', dateStr)
@@ -333,7 +333,7 @@ const Dashboard = () => {
 
             // Use upsert so editing existing submissions works (no duplicate error)
             const { error } = await supabase
-                .from('journals')
+                .from('yje_journals')
                 .upsert([payload], { onConflict: 'user_id,date,type' })
 
             if (error) {
@@ -360,7 +360,7 @@ const Dashboard = () => {
 
         try {
             const { error } = await supabase
-                .from('users')
+                .from('yje_users')
                 .delete()
                 .eq('id', userIdToDelete)
 

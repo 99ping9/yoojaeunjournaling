@@ -37,7 +37,7 @@ const Home = () => {
             }
 
             const { data, error } = await supabase
-                .from('users')
+                .from('yje_users')
                 .select('username')
                 .order('username')
 

@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import {
     format,
     startOfMonth,
@@ -20,7 +20,7 @@ import { cn } from '@/lib/utils'
 import { SubmissionType } from '@/types'
 import { HOLIDAYS_2026 } from '@/lib/constants'
 
-// Programme start date — no logging or coloring before this
+// Programme start date ? no logging or coloring before this
 const PROGRAM_START_DATE = new Date(2026, 1, 22) // Feb 22, 2026
 
 
@@ -143,7 +143,7 @@ const Calendar = ({ submissions, onDateClick, currentDate, isColumnParticipant =
                                 {isAllDone ? (
                                     <div className="mt-1">
                                         <span className="text-[10px] font-extrabold text-blue-600 bg-blue-50 border border-blue-100 px-1.5 py-0.5 rounded-md shadow-sm">
-                                            100%완료!
+                                            100%�Ϸ�!
                                         </span>
                                     </div>
                                 ) : subCount > 0 ? (

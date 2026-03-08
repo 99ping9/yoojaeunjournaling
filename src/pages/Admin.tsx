@@ -37,13 +37,13 @@ const Admin = () => {
             }
 
             const { data, error } = await supabase
-                .from('journals')
+                .from('yje_journals')
                 .select(`
                     id,
                     date,
                     link,
                     created_at,
-                    users (
+                    yje_users (
                         username
                     )
                 `)
