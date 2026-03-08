@@ -7,7 +7,7 @@ interface AuthContextType {
     loading: boolean
     login: (name: string) => Promise<{ success: boolean; error?: string }>
     logout: () => void
-    updateProfile: (newName: string, newAvatar?: string, newBgColor?: string) => Promise<{ success: boolean; error?: string }>
+    updateProfile: (newName: string, newAvatar?: string, newBgColor?: string, isChallenge?: boolean, aura_index?: number) => Promise<{ success: boolean; error?: string }>
     updateColumnChallenge: (isChallenge: boolean) => Promise<{ success: boolean; error?: string }>
     isAdmin: boolean
     checkAdmin: (password: string) => boolean
@@ -103,7 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.removeItem('yje_journal_admin')
     }
 
-    const updateProfile = async (newName: string, newAvatar?: string, newBgColor?: string) => {
+    const updateProfile = async (newName: string, newAvatar?: string, newBgColor?: string, isChallenge?: boolean, aura_index?: number) => {
         try {
             if (!user) return { success: false, error: 'Not logged in' }
             if (!newName.trim()) return { success: false, error: 'Name cannot be empty' }
@@ -112,6 +112,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const updates: any = { username: cleanName }
             if (newAvatar) updates.avatar = newAvatar
             if (newBgColor) updates.bg_color = newBgColor
+            if (isChallenge !== undefined) updates.is_column_challenge = isChallenge
+            if (aura_index !== undefined) updates.aura_index = aura_index
 
             // MOCK MODE
             if (import.meta.env.VITE_USE_MOCK === 'true') {

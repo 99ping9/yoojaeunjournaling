@@ -49,22 +49,30 @@ const SubmissionModal = ({ isOpen, onClose, date, onSubmit, submittedTypes, exis
         e.preventDefault()
         const isCurrentlySubmitted = submittedTypes.includes(selectedType)
 
+        // 신규 제출인데 값이 없으면 리턴
         if (!isCurrentlySubmitted) {
             if (selectedType === 'account' && !amount) return
             if ((selectedType === 'journal' || selectedType === 'content') && !link.trim()) return
         }
 
         setIsSubmitting(true)
-        let contentToSubmit = link.trim()
 
-        if ((selectedType === 'journal' || selectedType === 'content') && !contentToSubmit) {
-            contentToSubmit = 'unchecked'
+        let contentToSubmit = link.trim()
+        let finalAmount = selectedType === 'account' ? (amount ? parseInt(amount.replace(/,/g, ''), 10) : undefined) : undefined
+
+        // 기존 제출된 항목인데 값을 비워서 보내면 삭제(unchecked) 처리
+        if (isCurrentlySubmitted) {
+            if (selectedType === 'account' && !amount && amount !== '0') {
+                contentToSubmit = 'unchecked'
+            } else if ((selectedType === 'journal' || selectedType === 'content') && !link.trim()) {
+                contentToSubmit = 'unchecked'
+            }
         }
 
         await onSubmit({
             type: selectedType,
             link: contentToSubmit,
-            amount: selectedType === 'account' ? (amount ? parseInt(amount.replace(/,/g, ''), 10) : undefined) : undefined
+            amount: finalAmount
         })
 
         setIsSubmitting(false)

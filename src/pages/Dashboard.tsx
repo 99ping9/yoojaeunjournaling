@@ -194,7 +194,8 @@ const Dashboard = () => {
         const dateStr = format(selectedDate, 'yyyy-MM-dd')
 
         try {
-            if (data.link === 'unchecked' || (data.type === 'account' && !data.amount && data.amount !== 0)) {
+            // 삭제 처리 (unchecked인 경우)
+            if (data.link === 'unchecked') {
                 const wasSubmitted = (submissions[dateStr] || []).includes(data.type)
 
                 const { error } = await supabase
@@ -203,14 +204,20 @@ const Dashboard = () => {
                     .eq('user_id', targetUserId)
                     .eq('date', dateStr)
                     .eq('type', data.type)
+
                 if (error) { alert(`삭제 실패: ${error.message}`); return }
 
-                // 아우라지수 -1 (기존에 있었을 때만)
+                // 아우라지수 -1 (기존에 제출된 상태였을 때만)
                 if (wasSubmitted) {
                     const currentAura = viewedUser?.aura_index ?? 0
+                    const newAura = Math.max(0, currentAura - 1)
                     await supabase.from('yje_users')
-                        .update({ aura_index: Math.max(0, currentAura - 1) })
+                        .update({ aura_index: newAura })
                         .eq('id', targetUserId)
+
+                    if (isViewingSelf) {
+                        updateProfile(user.username, user.avatar || '', user.bg_color || '', user.is_column_challenge, newAura)
+                    }
                 }
 
                 await fetchData()
@@ -226,7 +233,7 @@ const Dashboard = () => {
                 amount: data.amount ?? null
             }
 
-            // 이미 제출했는지 확인 (upsert 시 신규만 아우라 증가)
+            // 이미 제출했는지 확인
             const isNew = !(submissions[dateStr] || []).includes(data.type)
 
             const { error } = await supabase
@@ -235,12 +242,18 @@ const Dashboard = () => {
 
             if (error) { alert(`제출 실패: ${error.message}`); return }
 
-            // 아우라지수 +1 (신규 제출일 때만)
+            // 아우라지수 +1 (신규 제출일 때만 즉시 반영)
             if (isNew) {
                 const currentAura = viewedUser?.aura_index ?? 0
+                const newAura = currentAura + 1
                 await supabase.from('yje_users')
-                    .update({ aura_index: currentAura + 1 })
+                    .update({ aura_index: newAura })
                     .eq('id', targetUserId)
+
+                // 메모리 내 정보도 업데이트하여 즉시 반영되게 함
+                if (isViewingSelf) {
+                    updateProfile(user.username, user.avatar || '', user.bg_color || '', user.is_column_challenge, newAura)
+                }
             }
 
             await fetchData()
