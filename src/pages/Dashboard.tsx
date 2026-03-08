@@ -452,7 +452,7 @@ const Dashboard = () => {
                     <button
                         onClick={() => {
                             const pw = window.prompt('관리자 비밀번호를 입력하세요:')
-                            if (pw === 'yujaeun1212') { setIsAdminMode(true) }
+                            if (pw === '123456') { setIsAdminMode(true) }
                             else if (pw !== null) { alert('비밀번호가 올바르지 않습니다.') }
                         }}
                         className="text-[10px] text-slate-200 hover:text-slate-400 transition-colors select-none"
