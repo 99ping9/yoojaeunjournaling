@@ -298,14 +298,14 @@ const Dashboard = () => {
                             </div>
                             {isViewingSelf ? (
                                 <>
-                                    안녕하세요, <span className="text-blue-600">{user?.username}</span>님!
+                                    안녕하세요, <span className="text-blue-600">💝{user?.username}</span>님!
                                     <button onClick={() => { setTempName(user?.username || ''); setTempAvatar(user?.avatar || getAnimalAvatar(user?.username || '')); setTempBgColor(user?.bg_color || 'bg-slate-100'); setIsEditingName(true) }} className="text-slate-400 hover:text-blue-500 transition-colors p-1">
                                         <Pencil className="w-4 h-4" />
                                     </button>
                                 </>
                             ) : (
                                 <>
-                                    <span className="text-blue-600">{viewedUser?.username}</span>님의 기록
+                                    <span className="text-blue-600">💝{viewedUser?.username}</span>님의 기록
                                     <button onClick={() => user && setViewedUser({ id: user.id, username: user.username, avatar: user.avatar || '', bg_color: user.bg_color || '', is_column_challenge: false, aura_index: user.aura_index ?? 0 })} className="ml-2 text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded hover:bg-slate-200 transition-colors">
                                         내 기록으로 돌아가기
                                     </button>
