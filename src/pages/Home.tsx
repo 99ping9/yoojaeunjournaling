@@ -52,7 +52,7 @@ const Home = () => {
 
         } catch (err) {
             console.error('Error fetching users:', err)
-            // Fallback to create view on error
+            // Supabase 미연결 시 create 뷰로 fallback (에러 노출 없이 처리)
             setView('create')
         } finally {
             setLoadingUsers(false)
@@ -93,8 +93,7 @@ const Home = () => {
         <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
             <div className="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden">
                 <div className="bg-gradient-to-r from-sky-500 to-blue-600 p-8 text-center">
-                    <h1 className="text-3xl font-bold text-white mb-2">Morning Journal</h1>
-                    <p className="text-blue-100">아침저널링으로 아침을 시작해보세요!</p>
+                    <h1 className="text-3xl font-bold text-white">유재은</h1>
                 </div>
 
                 <div className="p-8">
@@ -157,7 +156,11 @@ const Home = () => {
                                     autoFocus
                                 />
                                 {error && (
-                                    <p className="text-red-500 text-sm mt-2">{error}</p>
+                                    <p className="text-red-500 text-sm mt-2">
+                                        {error.includes('fetch') || error.includes('Failed')
+                                            ? '연결 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
+                                            : error}
+                                    </p>
                                 )}
                             </div>
 
@@ -177,9 +180,7 @@ const Home = () => {
                         </form>
                     )}
 
-                    <div className="mt-6 text-center text-xs text-gray-400">
-                        SeulkiRowoon Consulting Certification System
-                    </div>
+
                 </div>
             </div>
         </div>
