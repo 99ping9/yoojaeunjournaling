@@ -15,7 +15,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-const ADMIN_PASSWORD = 'yujaeun1212' // Simple client-side check as requested
+const ADMIN_PASSWORD = '123456' // Simple client-side check as requested
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null)

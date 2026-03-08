@@ -136,6 +136,9 @@ const Dashboard = () => {
                 SUBMISSION_TYPES.forEach(t => typeCounts[t.id] = 0)
                 allWeekDays.forEach(day => {
                     const dateKey = format(day, 'yyyy-MM-dd')
+                    // 주말이나 공휴일은 미션 카운트에서 제외
+                    if (isWeekend(day) || HOLIDAYS_2026[dateKey]) return
+
                     thisWeekJournals?.filter(j => j.user_id === u.id && j.date === dateKey)
                         .forEach(j => { if (typeCounts[j.type] !== undefined) typeCounts[j.type]++ })
                 })
@@ -164,11 +167,14 @@ const Dashboard = () => {
         const is22nd = isSameDay(date, new Date(2026, 1, 22))
         if (!isAdminMode && !is22nd && isBefore(date, PROGRAM_START_DATE) && !isSameDay(date, PROGRAM_START_DATE)) return
         if (!isAdminMode) {
+            // 주말/공휴일 작성 제한 제거 (사용자 요청: 주말에도 작성 가능)
+            /*
             const dateStr = format(date, 'yyyy-MM-dd')
             if (isWeekend(date) || HOLIDAYS_2026[dateStr]) {
                 alert('주말 및 공휴일은 휴식일입니다! 🎉')
                 return
             }
+            */
 
             const today = new Date()
             const dDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
@@ -278,6 +284,9 @@ const Dashboard = () => {
         SUBMISSION_TYPES.forEach(t => counts[t.id] = 0)
         weekDays.forEach(day => {
             const dateKey = format(day, 'yyyy-MM-dd')
+            // 주말이나 공휴일은 미션 카운트에서 제외
+            if (isWeekend(day) || HOLIDAYS_2026[dateKey]) return
+
             const daySubs = submissions[dateKey] || []
             daySubs.forEach(type => { if (counts[type] !== undefined) counts[type]++ })
         })
