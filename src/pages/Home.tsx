@@ -183,6 +183,21 @@ const Home = () => {
 
                 </div>
             </div>
+
+            <div className="mt-8 text-center animate-in fade-in slide-in-from-bottom-2 duration-700 delay-300">
+                <a
+                    href="https://biz-potential-consulting.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex flex-col items-center gap-1"
+                >
+                    <span className="text-xs text-slate-400 font-medium">Official Homepage</span>
+                    <span className="text-sm text-slate-500 group-hover:text-blue-500 font-bold transition-colors">
+                        Business Potential Consulting
+                    </span>
+                    <div className="w-8 h-0.5 bg-slate-200 group-hover:w-24 group-hover:bg-blue-400 transition-all duration-500"></div>
+                </a>
+            </div>
         </div>
     )
 }
