@@ -136,8 +136,6 @@ const Dashboard = () => {
                 SUBMISSION_TYPES.forEach(t => typeCounts[t.id] = 0)
                 allWeekDays.forEach(day => {
                     const dateKey = format(day, 'yyyy-MM-dd')
-                    // 주말이나 공휴일은 미션 카운트에서 제외
-                    if (isWeekend(day) || HOLIDAYS_2026[dateKey]) return
 
                     thisWeekJournals?.filter(j => j.user_id === u.id && j.date === dateKey)
                         .forEach(j => { if (typeCounts[j.type] !== undefined) typeCounts[j.type]++ })
@@ -297,8 +295,6 @@ const Dashboard = () => {
         SUBMISSION_TYPES.forEach(t => counts[t.id] = 0)
         weekDays.forEach(day => {
             const dateKey = format(day, 'yyyy-MM-dd')
-            // 주말이나 공휴일은 미션 카운트에서 제외
-            if (isWeekend(day) || HOLIDAYS_2026[dateKey]) return
 
             const daySubs = submissions[dateKey] || []
             daySubs.forEach(type => { if (counts[type] !== undefined) counts[type]++ })
