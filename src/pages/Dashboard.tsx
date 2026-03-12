@@ -456,7 +456,7 @@ const Dashboard = () => {
                 submittedTypes={submissions[format(selectedDate, 'yyyy-MM-dd')] || []}
                 existingData={submissionDetails[format(selectedDate, 'yyyy-MM-dd')] || {}}
                 defaultType={selectedDefaultType}
-                isAdminViewing={false}
+                isAdminViewing={isAdminMode && !isViewingSelf}
             />
 
             {/* 관리자 모드 */}
